@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TEDExporter.DTO
+﻿namespace TEDExporter.DTO
 {
     public class ExportTED
     {
@@ -15,7 +13,6 @@ namespace TEDExporter.DTO
         public string Nature { get; set; }
         public string Severite { get; set; }
         public string AffecteA { get; set; }
-        public string DateEmission { get; set; }
         public string Emetteur { get; set; }
         public string ServiceCreat { get; set; }
         public string VersionPrevue { get; set; }
