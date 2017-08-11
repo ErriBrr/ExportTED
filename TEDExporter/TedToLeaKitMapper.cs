@@ -22,14 +22,16 @@ namespace TEDExporter
                     t.Card_Type = "512063321";
                     switch (domaine)
                     {
-                        case "FSS":
-                            t.Lane_Id = "516686010";
-                            break;
+                       
                         case "eSRC":
                             t.Lane_Id = "521517640";
                             break;
                         case "Tauri":
                             t.Lane_Id = "516686007";
+                            break;
+                        case "FSS":
+                        default:
+                            t.Lane_Id = "516686010";
                             break;
                     }
                     break;
@@ -37,29 +39,34 @@ namespace TEDExporter
                     t.Card_Type = "512063320";
                     switch (domaine)
                     {
-                        case "FSS":
-                            t.Lane_Id = "512720055";
-                            break;
+                       
                         case "eSRC":
                             t.Lane_Id = "512726405";
                             break;
                         case "Tauri":
                             t.Lane_Id = "512720054";
                             break;
+                        case "FSS":
+                        default:
+                            t.Lane_Id = "512720055";
+                            break;
                     }
                     break;
                 case "Imprevu":
+                default:
                     t.Card_Type = "512063321";
                     switch (domaine)
                     {
-                        case "FSS":
-                            t.Lane_Id = "512720057";
-                            break;
+                        
                         case "eSRC":
                             t.Lane_Id = "512726407";
                             break;
                         case "Tauri":
                             t.Lane_Id = "512720056";
+                            break;
+                        case "FSS":
+                        default:
+                            t.Lane_Id = "512720057";
                             break;
                     }
                     break;
@@ -76,7 +83,7 @@ namespace TEDExporter
             {
                 return "FSS";
             }
-            if(ted.SousSysteme == "eSRC")
+            if(ted.SousSysteme == "eSRC" || ted.Intitule.ToUpper().StartsWith("ESRC"))
             {
                 return "eSRC";
             }
@@ -94,7 +101,7 @@ namespace TEDExporter
 
         public static string GetNature(ExportTED ted)
         {
-            if (ted.Intitule.StartsWith("[Suivi"))
+            if (ted.Intitule.ToUpper().StartsWith("[SUIVI") || ted.Intitule.ToUpper().Contains("SUIVI DE PROD"))
             {
                 return "SuiviProd";
             }
