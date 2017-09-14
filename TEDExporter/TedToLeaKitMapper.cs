@@ -1,4 +1,5 @@
-﻿using TEDExporter.DTO;
+﻿using System.Runtime.CompilerServices;
+using TEDExporter.DTO;
 using TEDExporter.Map;
 
 namespace TEDExporter
@@ -17,6 +18,7 @@ namespace TEDExporter
             {
                 case NatureTED.Suivi_Production:
                     t.Card_Type = Card.TYPE_SUIVI;
+                    //to control the Lane
                     switch (domaine)
                     {
                         case DomaineTED.eSRC:
@@ -35,6 +37,7 @@ namespace TEDExporter
                     break;
                 case NatureTED.Evolution:
                     t.Card_Type = Card.TYPE_EVOL;
+                    //to control the Lane
                     switch (domaine)
                     {
                         case DomaineTED.eSRC:
@@ -53,9 +56,9 @@ namespace TEDExporter
                     break;
                 case NatureTED.Tache:
                     t.Card_Type = Card.TYPE_TACHES;
+                    //to control the Lane
                     switch (domaine)
                     {
-                       
                         case DomaineTED.eSRC:
                             t.Lane_Id = BoardESrc.ID_TACHE.ToString();
                             break;
@@ -71,7 +74,31 @@ namespace TEDExporter
                     }
                     break;
                 case NatureTED.Imprevu:
-                    t.Card_Type = Card.TYPE_TACHES;
+                    // controles sur la version de la carte ou un PAC 
+                    if (ted.VersionPrevue.Contains("PAC"))
+                    {
+                        t.Card_Type = Card.TYPE_PAC;
+                    }
+                    else
+                    {
+                        if (ted.VersionPrevue.Contains("4.20"))
+                        {
+                            t.Card_Type = Card.TYPE_VINGT;
+                        }
+                        else if (ted.VersionPrevue.Contains("4.21"))
+                        {
+                            t.Card_Type = Card.TYPE_VINGTUN;
+                        }
+                        else if (ted.VersionPrevue.Contains("4.22"))
+                        {
+                            t.Card_Type = Card.TYPE_VINGTDEUX;
+                        }
+                        else
+                        {
+                            t.Card_Type = ted.VersionPrevue;
+                        }
+                    }
+                    //to control the Lane
                     switch (domaine)
                     {
                         case DomaineTED.eSRC:
@@ -101,21 +128,22 @@ namespace TEDExporter
             if (ted.SousSysteme == "Prestations FSS")
             {
                 return DomaineTED.FSS;
-            }
-            if(ted.SousSysteme == "eSRC" || ted.Intitule.ToUpper().StartsWith("ESRC"))
+            }else
+            if (ted.SousSysteme == "eSRC" || ted.Intitule.ToUpper().StartsWith("ESRC"))
             {
                 return DomaineTED.eSRC;
-            }
-            if(ted.SousSysteme == "ServicesCommuns")
+            }else
+            if (ted.SousSysteme == "ServicesCommuns")
             {
-                return  DomaineTED.Commun;
-            }
+                return DomaineTED.Commun;
+            }else
             if (ted.SousSysteme.StartsWith("Actuaria"))
             {
                 return DomaineTED.Tauri;
+            }else
+            {
+                return DomaineTED.Inconnu;
             }
-            return DomaineTED.Inconnu;
-
         }
 
         public static NatureTED GetNature(ExportTED ted)
@@ -124,21 +152,22 @@ namespace TEDExporter
             {
                 return NatureTED.Suivi_Production;
             }
-            if(ted.Type == "Evolution")
+            else if (ted.Type == "Evolution")
             {
                 return NatureTED.Evolution;
             }
-
-            if(ted.Type == "Imprévu")
+            else if (ted.Type == "Imprévu")
             {
                 return NatureTED.Imprevu;
             }
-
-            if(ted.Type == "Tâche")
+            else if (ted.Type == "Tâche")
             {
                 return NatureTED.Tache;
             }
-            return NatureTED.Inconnu;
+            else
+            {
+                return NatureTED.Inconnu;
+            }
         }
     }
 
