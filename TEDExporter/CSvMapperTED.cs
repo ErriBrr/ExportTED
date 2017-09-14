@@ -19,14 +19,13 @@ namespace TEDExporter
             Map(m => m.Nature).Name("Nature");
             Map(m => m.Severite).Name("Sévérité");
             Map(m => m.AffecteA).Name("Affecté à");
+            Map(m => m.DateEmission).Name("Date d'émission");
             Map(m => m.Emetteur).Name("Emetteur");
             Map(m => m.ServiceCreat).Name("Service creat.");
             Map(m => m.VersionPrevue).Name("Version prévue");
             Map(m => m.HistoAffect).Name("Histo.Affec.");
             Map(m => m.Intitule).Name("Intitulé");
             Map(m => m.Environnement).Name("Env.");
-
-
         }
     }
 }

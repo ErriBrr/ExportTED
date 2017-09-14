@@ -48,6 +48,11 @@
     <Compile Include="CSvMapperTED.cs" />
     <Compile Include="DTO\ExportTED.cs" />
     <Compile Include="DTO\ImportLeanKit.cs" />
+    <Compile Include="Map\Board.cs" />
+    <Compile Include="Map\BoardESrc.cs" />
+    <Compile Include="Map\BoardTauri.cs" />
+    <Compile Include="Map\BoardFSS.cs" />
+    <Compile Include="Map\Card.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TedToLeaKitMapper.cs" />

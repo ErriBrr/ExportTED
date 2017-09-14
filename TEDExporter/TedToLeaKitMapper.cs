@@ -1,95 +1,98 @@
 ﻿using TEDExporter.DTO;
+using TEDExporter.Map;
 
 namespace TEDExporter
 {
     public static class TedToLeaKitMapper
     {
-        public static string CARD_TYPE_TACHES = "512063320";
-        public static string CARD_TYPE_EVOL = "512063321";
-        public static string CARD_TYPE_SUIVI = "519685034";
-
-        public static string LANE_SUIVI = "521748899";
-        public static string LANE_EVOL_ESRC = "521517640";
-        public static string LANE_EVOL_TAURI = "516686007";
-        public static string LANE_EVOL_FSS = "516686010";
-
-        public static string LANE_TACHE_ESRC = "512726405";
-        public static string LANE_TACHE_TAURI = "512720054";
-        public static string LANE_TACHE_FSS = "512720055";
-
-        public static string LANE_IMPREVU_ESRC = "512726407";
-        public static string LANE_IMPREVU_TAURI = "512720056";
-        public static string LANE_IMPREVU_FSS = "512720057";
-
         public static ImportLeanKit GetDTOForTED(ExportTED ted)
         {
-            var t = new ImportLeanKit();
+            ImportLeanKit t = new ImportLeanKit();
             t.Card_Description = ted.Intitule;
             t.Card_Title = $"TED {ted.Numero}";
-            var domaine = GetDomaine(ted);
-            var nature = GetNature(ted);
+
+            DomaineTED domaine = GetDomaine(ted);
+            NatureTED nature = GetNature(ted);
             switch (nature)
             {
                 case NatureTED.Suivi_Production:
-                    t.Lane_Id = LANE_SUIVI;
-                    t.Card_Type = CARD_TYPE_SUIVI;
-                    break;
-                case NatureTED.Evolution:
-                    t.Card_Type = CARD_TYPE_EVOL;
+                    t.Card_Type = Card.TYPE_SUIVI;
                     switch (domaine)
                     {
-                       
                         case DomaineTED.eSRC:
-                            t.Lane_Id = LANE_EVOL_ESRC;
+                            t.Lane_Id = BoardESrc.ID_TACHE.ToString();
                             break;
                         case DomaineTED.Tauri:
-                            t.Lane_Id = LANE_EVOL_TAURI;
+                            t.Lane_Id = BoardTauri.ID_TACHE.ToString();
                             break;
                         case DomaineTED.FSS:
+                            t.Lane_Id = BoardFSS.ID_TACHE.ToString();
+                            break;
                         default:
-                            t.Lane_Id = LANE_EVOL_FSS;
+                            t.Lane_Id = "0";
+                            break;
+                    }
+                    break;
+                case NatureTED.Evolution:
+                    t.Card_Type = Card.TYPE_EVOL;
+                    switch (domaine)
+                    {
+                        case DomaineTED.eSRC:
+                            t.Lane_Id = BoardESrc.ID_EVOLUTION.ToString();
+                            break;
+                        case DomaineTED.Tauri:
+                            t.Lane_Id = BoardTauri.ID_EVOLUTION.ToString();
+                            break;
+                        case DomaineTED.FSS:
+                            t.Lane_Id = BoardFSS.ID_EVOLUTION.ToString();
+                            break;
+                        default:
+                            t.Lane_Id = "0";
                             break;
                     }
                     break;
                 case NatureTED.Tache:
-                    t.Card_Type = CARD_TYPE_TACHES;
+                    t.Card_Type = Card.TYPE_TACHES;
                     switch (domaine)
                     {
                        
                         case DomaineTED.eSRC:
-                            t.Lane_Id = LANE_TACHE_ESRC;
+                            t.Lane_Id = BoardESrc.ID_TACHE.ToString();
                             break;
                         case DomaineTED.Tauri:
-                            t.Lane_Id = LANE_TACHE_TAURI;
+                            t.Lane_Id = BoardTauri.ID_TACHE.ToString();
                             break;
                         case DomaineTED.FSS:
+                            t.Lane_Id = BoardFSS.ID_TACHE.ToString();
+                            break;
                         default:
-                            t.Lane_Id = LANE_TACHE_FSS;
+                            t.Lane_Id = "0";
                             break;
                     }
                     break;
                 case NatureTED.Imprevu:
-                default:
-                    t.Card_Type = CARD_TYPE_TACHES;
+                    t.Card_Type = Card.TYPE_TACHES;
                     switch (domaine)
                     {
-                        
                         case DomaineTED.eSRC:
-                            t.Lane_Id = LANE_IMPREVU_ESRC;
+                            t.Lane_Id = BoardESrc.ID_IMPREVU.ToString();
                             break;
                         case DomaineTED.Tauri:
-                            t.Lane_Id = LANE_IMPREVU_TAURI;
+                            t.Lane_Id = BoardTauri.ID_IMPREVU.ToString();
                             break;
                         case DomaineTED.FSS:
+                            t.Lane_Id = BoardFSS.ID_IMPREVU.ToString();
+                            break;
                         default:
-                            t.Lane_Id = LANE_IMPREVU_FSS;
+                            t.Lane_Id = "0";
                             break;
                     }
                     break;
-
+                default:
+                    t.Card_Type = "INCONNU";
+                    break;
             }
             return t;
-        
         }
 
 
