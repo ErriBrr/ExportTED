@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using System.Xml.Serialization;
 using TEDExporter.DTO;
 
 namespace TEDExporter
@@ -15,19 +16,71 @@ namespace TEDExporter
     {
         static void Main(string[] args)
         {
+            Image(true);
+            String nouveau = Welcome();
 
-            String filePath = @"C:\[yourPath]";
+            Console.Clear();
+            if (nouveau != "")
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                DoExportator(nouveau);
+                Console.Read();
+            }
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.White;
+            for (int i = 0; i < 5; i++)
+                Console.WriteLine();
+            Console.WriteLine("                 FERMETURE DE TED_EXPORTATOR");
+            Thread.Sleep(1000);
+        }
 
-            Image(filePath);
-
-            var nouveau = Path.Combine(filePath, "nouveau.csv");
-            DoExportator(nouveau);
-            Console.Read();
+        private static string Welcome()
+        {
+            bool done = false;
+            while (!done)
+            {
+                Image(false);
+                String filePath = "";
+                Console.WriteLine(
+                    "Veuillez renseigner ci-après le chemin menant à votre fichier .csv d'exportation de TED : ");
+                filePath = Console.ReadLine();
+                if (File.Exists(filePath))
+                {
+                    done = true;
+                    return filePath;
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Le fichier n'existe pas");
+                    Console.WriteLine("Tapez : ");
+                    Console.WriteLine("         '1' - pour réessayer");
+                    Console.WriteLine("         '2' - pour arrêter");
+                    bool correctKey = false;
+                    while (!correctKey)
+                    {
+                        switch (Console.ReadKey().KeyChar)
+                        {
+                            case '1':
+                                correctKey = true;
+                                break;
+                            case '2':
+                                correctKey = true;
+                                done = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+            return "";
         }
 
         public static void DoExportator(String nouveau)
         {
-            var filePath = @"C:\[yourPath]";
+            var filePath = @"C:\testImportTed";
             var originalPath = Path.Combine(filePath, "empty.csv");
             List<ExportTED> dataOriginal;
             List<ExportTED> dataNew;
@@ -87,32 +140,42 @@ namespace TEDExporter
             }
             Console.WriteLine("Fichier créé : " + filePath + "/" + nameFile + " \n avec " + res.Count() + " lignes");
         }
-        public static void Image(String filepath)
+        public static void Image(bool firstShow)
         {
-            string path = filepath + "\\Dessin.txt";
-            try
+            if (!firstShow)
             {
-                if (File.Exists(path))
+                Console.Clear();
+                Console.ResetColor();
+            }
+            else
+            {
+                String filepath = @"C:\testImportTed";
+                string path = filepath + "\\Dessin.txt";
+                try
                 {
-                    using (StreamReader sr = new StreamReader(path))
+                    if (File.Exists(path))
                     {
-                        while (sr.Peek() >= 0)
+                        using (StreamReader sr = new StreamReader(path))
                         {
-                            Console.WriteLine(sr.ReadLine());
-                            Thread.Sleep(100);
+                            while (sr.Peek() >= 0)
+                            {
+                                Console.WriteLine(sr.ReadLine());
+                                if (firstShow)
+                                    Thread.Sleep(100);
+                            }
                         }
                     }
+                    else
+                    {
+                        Console.WriteLine("------------------------------------");
+                        Console.WriteLine("---CGI Rennes-Orléans Cds Humanis---");
+                        Console.WriteLine("------------------------------------");
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    Console.WriteLine("------------------------------------");
-                    Console.WriteLine("-------------no image---------------");
-                    Console.WriteLine("------------------------------------");
+                    Console.WriteLine("The process failed: {0}", e.ToString());
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("The process failed: {0}", e.ToString());
             }
         }
     }
