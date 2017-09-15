@@ -1,4 +1,4 @@
-﻿using CsvHelper;
+using CsvHelper;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using TEDExporter.DTO;
 
 namespace TEDExporter
@@ -15,9 +16,9 @@ namespace TEDExporter
         static void Main(string[] args)
         {
 
-            var filePath = @"C:\testImportTed";
+            String filePath = @"C:\[yourPath]";
 
-
+            Image(filePath);
 
             var nouveau = Path.Combine(filePath, "nouveau.csv");
             DoExportator(nouveau);
@@ -26,7 +27,7 @@ namespace TEDExporter
 
         public static void DoExportator(String nouveau)
         {
-            var filePath = @"C:\testImportTed";
+            var filePath = @"C:\[yourPath]";
             var originalPath = Path.Combine(filePath, "empty.csv");
             List<ExportTED> dataOriginal;
             List<ExportTED> dataNew;
@@ -85,6 +86,34 @@ namespace TEDExporter
                 csvWriter.WriteRecords(res);
             }
             Console.WriteLine("Fichier créé : " + filePath + "/" + nameFile + " \n avec " + res.Count() + " lignes");
+        }
+        public static void Image(String filepath)
+        {
+            string path = filepath + "\\Dessin.txt";
+            try
+            {
+                if (File.Exists(path))
+                {
+                    using (StreamReader sr = new StreamReader(path))
+                    {
+                        while (sr.Peek() >= 0)
+                        {
+                            Console.WriteLine(sr.ReadLine());
+                            Thread.Sleep(100);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("------------------------------------");
+                    Console.WriteLine("-------------no image---------------");
+                    Console.WriteLine("------------------------------------");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The process failed: {0}", e.ToString());
+            }
         }
     }
 }
