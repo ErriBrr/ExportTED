@@ -1,13 +1,11 @@
 using CsvHelper;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using System.Xml.Serialization;
+using System.Threading.Tasks;
 using TEDExporter.DTO;
 
 namespace TEDExporter
@@ -16,11 +14,6 @@ namespace TEDExporter
     {
         static void Main(string[] args)
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Image(true);
-            Thread.Sleep(300);
-            Console.WriteLine("Appuyez sur Entrée ...");
-            Console.ReadKey();
 
             if (!Directory.Exists(@"C:\tedExportator"))
             {
@@ -28,9 +21,14 @@ namespace TEDExporter
                 Directory.CreateDirectory(Path.Combine(@"C:\tedExportator", ".cache"));
             }
 
-            Image(false);
-            Console.WriteLine();
-            String[] nouveau = Welcome();
+            Welcome();
+            Thread.Sleep(300);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Appuyez sur Entrée ...");
+
+            Console.ReadKey();
+
+            String[] nouveau = DoJob();
 
             Console.Clear();
             if (nouveau[0] != "")
@@ -47,7 +45,14 @@ namespace TEDExporter
             Thread.Sleep(1000);
         }
 
-        private static string[] Welcome()
+        private static void Welcome()
+        {
+
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Image(true);
+        }
+        public static string[] DoJob()
         {
             bool done = false;
             while (!done)
@@ -55,6 +60,7 @@ namespace TEDExporter
                 Image(false);
                 String filePath = @"C:\tedExportator";
                 String fileName = "";
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("Veuillez placer votre fichier dans C:\\tedExportator,");
                 Console.WriteLine("puis renseigner ci-après le nom de votre fichier : ");
                 fileName = Console.ReadLine();
@@ -94,7 +100,6 @@ namespace TEDExporter
             }
             return new string[] { "", "" };
         }
-
         public static void DoExportator(String filePath, String nouveau)
         {
             String originalPath = @"Res\numerosTEDonLeankit.csv";
@@ -154,7 +159,7 @@ namespace TEDExporter
                 }
             }
         }
-        public static void ExportWriter(string filePath, string domaine, IEnumerable<ImportLeanKit> res)
+        private static void ExportWriter(string filePath, string domaine, IEnumerable<ImportLeanKit> res)
         {
             string nameFile = string.Format("{0}.csv", domaine);
             if (File.Exists(Path.Combine(filePath, nameFile)))
@@ -174,30 +179,67 @@ namespace TEDExporter
             {
                 Console.Clear();
             }
-            try
+            if (File.Exists("./Res/Dessin.txt"))
             {
-                if (File.Exists("./Res/Dessin.txt"))
+                using (StreamReader sr = new StreamReader(@"Res\Dessin.txt"))
                 {
-                    using (StreamReader sr = new StreamReader(@"Res\Dessin.txt"))
+                    int i = 1;
+                    while (sr.Peek() >= 0)
                     {
-                        while (sr.Peek() >= 0)
+
+                        string line = sr.ReadLine();
+                        if ((i >= 3 && i <= 5) || (i >= 11 && i <= 15))
                         {
-                            Console.WriteLine(sr.ReadLine());
-                            if (firstShow)
-                                Thread.Sleep(100);
+                            for (int j = 0; j < line.Length; j++)
+                            {
+                                if (j >= 16 && j <= 60)
+                                {
+                                    Console.BackgroundColor = ConsoleColor.White;
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                                    Console.Write(line[j]);
+                                }
+                                else
+                                {
+                                    Console.ResetColor();
+                                    Console.Write(line[j]);
+                                }
+                            }
+                            Console.Write("\n");
                         }
+                        else if (i >= 6 && i <= 10)
+                        {
+                            for (int j = 0; j < line.Length; j++)
+                            {
+                                if (j >= 16 && j <= 60)
+                                {
+                                    Console.BackgroundColor = ConsoleColor.White;
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.Write(line[j]);
+                                }
+                                else
+                                {
+                                    Console.ResetColor();
+                                    Console.Write(line[j]);
+                                }
+                            }
+                            Console.Write("\n");
+                        }
+                        else
+                        {
+                            Console.ResetColor();
+                            Console.WriteLine(line);
+                        }
+                        if (firstShow)
+                            Thread.Sleep(100);
+                        i++;
                     }
                 }
-                else
-                {
-                    Console.WriteLine("------------------------------------");
-                    Console.WriteLine("---CGI Rennes-Orléans Cds Humanis---");
-                    Console.WriteLine("------------------------------------");
-                }
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine("The process failed: {0}", e.ToString());
+                Console.WriteLine("------------------------------------");
+                Console.WriteLine("---CGI Rennes-Orléans Cds Humanis---");
+                Console.WriteLine("------------------------------------");
             }
         }
     }
