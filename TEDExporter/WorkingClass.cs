@@ -4,7 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using LeanKit.API.Client.Library.TransferObjects;
 using TEDExporter.DTO;
+using TEDExporter.LeanKitAPI;
+using TEDExporter.Map;
 
 namespace TEDExporter
 {
@@ -24,8 +28,28 @@ namespace TEDExporter
                 fileName = Console.ReadLine();
                 if (File.Exists(Path.Combine(filePath, fileName)))
                 {
-                    done = true;
-                    return new string[] { filePath, fileName };
+                    if (ControlColumns(Path.Combine(filePath, fileName)))
+                    {
+                        done = true;
+                        return new string[] { filePath, fileName };
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Votre fichier ne respecte pas la norme des noms de colonne \n");
+                        Console.WriteLine("Veuillez réessayer \n");
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.BackgroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("NORME :\n");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.BackgroundColor = ConsoleColor.Black;
+                        foreach (string column in TED.Columns)
+                        {
+                            Console.Write(column + ";     ");
+                        }
+                        Console.ReadKey(false);
+                    }
                 }
                 else
                 {
@@ -58,6 +82,27 @@ namespace TEDExporter
             }
             return new string[] { "", "" };
         }
+
+        public static bool ControlColumns(string filePath)
+        {
+            bool correct = true;
+            string testColumns;
+            using (StreamReader reader = new StreamReader(filePath, Encoding.GetEncoding("iso-8859-1")))
+            {
+                testColumns = reader.ReadLine();
+            }
+            int i = 1;
+            while (correct && i <= TED.Columns.Length)
+            {
+                foreach (string column in TED.Columns)
+                {
+                    if (!testColumns.Contains(";" + column + ";") && !testColumns.Contains(TED.Columns[0] + ";"))
+                        correct = false;
+                }
+                i++;
+            }
+            return correct;
+        }
         public static void DoExportator(String filePath, String nouveau)
         {
             String originalPath = @"Res\numerosTEDonLeankit.csv";
@@ -80,40 +125,84 @@ namespace TEDExporter
                 reader.Configuration.Delimiter = ";";
                 dataNew = reader.GetRecords<ExportTED>().ToList();
             }
+            
+            Helper lkWorker = new Helper();
+            
+            List<ExportTED> nouveauxTed = new List<ExportTED>();
+            Console.WriteLine("en attente du service web ...");
+            Action<object> action = (object obj) =>
+            {
+                //pour accelerer et eviter un appel serveur a chq appel a 'nouveauxTed'
+                foreach (var x in dataNew.Where(x => lkWorker.DoesntExistCard(x)))
+                {
+                    nouveauxTed.Add(x);
+                }
+            };
+            Task t2 = new Task(action, "?");
+            //t2.RunSynchronously();
+            t2.Start();
+            t2.Wait();
+            int numTedsNvx = nouveauxTed.Count();
 
-            IEnumerable<int> idNouveaux = dataNew.Select(x => x.Numero);
-            IEnumerable<int> idAnciens = dataOriginal.Select(x => x.Numero);
-            IEnumerable<int> diff = idNouveaux.Except(idAnciens);
-            IEnumerable<ExportTED> nouveauxTed = dataNew.Where(x => diff.Contains(x.Numero));
-            Console.WriteLine("Il y a {0} nouveaux ted", nouveauxTed.Count());
+            Console.Clear();
+            Console.WriteLine("Il y a {0} nouveaux ted", numTedsNvx);
 
-            IEnumerable<ImportLeanKit> resFSS = nouveauxTed.Where(x => x.SousSysteme == "Prestations FSS" && !x.Intitule.ToUpper().StartsWith("ESRC")).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
+            IEnumerable<ImportLeanKit> resFSS = nouveauxTed.Where(x =>
+                                                                    x.SousSysteme == "Prestations FSS" &&
+                                                                    !x.Intitule.ToUpper().StartsWith("ESRC")
+                                                                  ).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
             if (resFSS.Any())
                 ExportWriter(filePath, "FSS", resFSS);
-            IEnumerable<ImportLeanKit> resESrc = nouveauxTed.Where(x => x.SousSysteme == "eSRC" || x.Intitule.ToUpper().StartsWith("ESRC")).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
+
+            IEnumerable<ImportLeanKit> resESrc = nouveauxTed.Where(x =>
+                                                                    x.SousSysteme == "eSRC" ||
+                                                                    x.Intitule.ToUpper().StartsWith("ESRC")
+                                                                  ).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
             if (resESrc.Any())
                 ExportWriter(filePath, "ESrc", resESrc);
-            IEnumerable<ImportLeanKit> resTauri = nouveauxTed.Where(x => x.SousSysteme.StartsWith("Actuaria") && !x.Intitule.ToUpper().StartsWith("ESRC")).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
+
+            IEnumerable<ImportLeanKit> resTauri = nouveauxTed.Where(x =>
+                                                                        x.SousSysteme.StartsWith("Actuaria") &&
+                                                                        !x.Intitule.ToUpper().StartsWith("ESRC")
+                                                                    ).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
             if (resTauri.Any())
                 ExportWriter(filePath, "Tauri", resTauri);
-            IEnumerable<ImportLeanKit> resSCommun = nouveauxTed.Where(x => x.SousSysteme == "ServicesCommuns" && !x.Intitule.ToUpper().StartsWith("ESRC")).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
+
+            IEnumerable<ImportLeanKit> resSCommun = nouveauxTed.Where(x =>
+                                                                        x.SousSysteme == "ServicesCommuns" &&
+                                                                        !x.Intitule.ToUpper().StartsWith("ESRC")
+                                                                     ).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
             if (resSCommun.Any())
                 ExportWriter(filePath, "SCommun", resSCommun);
+
+            //Normalement aucun conflit avec ESrc
+            IEnumerable<ImportLeanKit> resJOH1 = nouveauxTed.Where(x =>
+                                                                        x.SousSysteme == "Joachim"
+                                                                     ).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
+            if (resJOH1.Any())
+                ExportWriter(filePath, "JOH1", resJOH1);
+
             IEnumerable<ImportLeanKit> resIndetermine = nouveauxTed.Where(x =>
                                                                             !x.SousSysteme.StartsWith("Actuaria") &&
                                                                             x.SousSysteme != "Prestations FSS" &&
                                                                             x.SousSysteme != "eSRC" &&
                                                                             !x.Intitule.ToUpper().StartsWith("ESRC") &&
+                                                                            x.SousSysteme != "Joachim" &&
                                                                             x.SousSysteme != "ServicesCommuns"
                                                                          ).Select(x => TedToLeaKitMapper.GetDTOForTED(x));
             if (resIndetermine.Any())
                 ExportWriter(filePath, "Indetermine", resIndetermine);
-            using (var writer = File.CreateText(Path.Combine(filePath, ".cache", "numerosTEDonLeankit.csv")))
+
+            using (var writer = new StreamWriter(Path.Combine(filePath, ".cache", "numerosTEDonLeankit.csv")))
             {
                 writer.WriteLine("Numero;");
-                foreach (var x in idNouveaux)
+                foreach (var x in dataOriginal.Select(x => x.Numero))
                 {
-                    writer.WriteLine(x.ToString() + ";");
+                    writer.WriteLine(x + ";");
+                }
+                foreach (var x in nouveauxTed.Select(x => x.Numero))
+                {
+                    writer.WriteLine(x + ";");
                 }
             }
         }
