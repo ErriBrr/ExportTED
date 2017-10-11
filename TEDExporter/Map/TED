@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TEDExporter.Map
+{
+    public static class TED
+    {
+        public static string[] Columns =
+        {
+            "Numéro",
+            "Type",
+            "Sous-type",
+            "Statut",
+            "Priorité",
+            "Sous-système",
+            "Organisme",
+            "Nature",
+            "Sévérité",
+            "Affecté à",
+            "Date émission",
+            "Emetteur",
+            "Service creat.",
+            "Version prévue",
+            "Histo.Affec.",
+            "Intitulé",
+            "Environnement"
+        };
+    }
+}
